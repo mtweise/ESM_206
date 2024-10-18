@@ -1,0 +1,148 @@
+city,country,total_bird,exotic_bird,native_bird,total_plant,exotic_plant,native_plant
+Adelaide,Australia,NA,NA,NA,1588,633,955
+Brisbane,Australia,119,5,114,NA,NA,NA
+Melbourne,Australia,272,17,255,1655,666,989
+Vienna,Austria,137,4,133,1409,175,1234
+Brussels,Belgium,97,0,97,759,446,313
+Turnhout,Belgium,NA,NA,NA,453,49,404
+La Paz,Bolivia,64,1,63,NA,NA,NA
+Porto Alegre,Brazil,132,3,129,NA,NA,NA
+Sofia,Bulgaria,210,5,205,NA,NA,NA
+Bujumbura,Burundi,NA,NA,NA,397,170,227
+Ottawa,Canada,135,3,132,NA,NA,NA
+Vancouver,Canada,48,4,44,NA,NA,NA
+Hong Kong,China,111,6,105,1883,243,1640
+Brno,Czech Republic,NA,NA,NA,965,440,525
+Plzen,Czech Republic,NA,NA,NA,1705,985,720
+Prague,Czech Republic,235,6,229,1019,329,690
+Montpellier,France,65,1,64,NA,NA,NA
+Cayenne,French Guyana,135,1,134,NA,NA,NA
+Aschersleben,Germany,NA,NA,NA,620,176,444
+Berlin,Germany,153,5,148,947,245,702
+Bielefeld,Germany,NA,NA,NA,767,168,599
+Bochum,Germany,NA,NA,NA,677,177,500
+Bonn,Germany,190,16,174,895,247,648
+Bottrop,Germany,NA,NA,NA,647,166,481
+Braunschweig,Germany,NA,NA,NA,643,153,490
+Bremen,Germany,NA,NA,NA,989,279,710
+Bremerhaven,Germany,NA,NA,NA,690,174,516
+Brühl,Germany,NA,NA,NA,654,177,477
+Chemnitz,Germany,NA,NA,NA,779,217,562
+Cottbus,Germany,NA,NA,NA,550,110,440
+Dessau,Germany,NA,NA,NA,859,214,645
+Dinslaken,Germany,NA,NA,NA,650,198,452
+Dortmund,Germany,NA,NA,NA,710,186,524
+Dresden,Germany,NA,NA,NA,681,201,480
+Duisburg,Germany,NA,NA,NA,691,229,462
+Düsseldorf,Germany,NA,NA,NA,832,263,569
+Essen,Germany,NA,NA,NA,562,145,417
+Frankfurt,Germany,NA,NA,NA,1012,283,729
+Gelsenkirchen,Germany,NA,NA,NA,603,157,446
+Gera,Germany,NA,NA,NA,953,254,699
+Grevenbroich,Germany,NA,NA,NA,575,144,431
+Hagen,Germany,NA,NA,NA,674,135,539
+Halberstadt,Germany,NA,NA,NA,733,212,521
+Halle (Saale),Germany,NA,NA,NA,892,332,560
+Hamburg,Germany,158,6,152,815,199,616
+Hanau,Germany,NA,NA,NA,814,207,607
+Hannover,Germany,NA,NA,NA,954,268,686
+Hennigsdorf,Germany,NA,NA,NA,735,155,580
+Herne,Germany,NA,NA,NA,627,156,471
+Hilden,Germany,NA,NA,NA,785,217,568
+Kamen,Germany,NA,NA,NA,655,167,488
+Kelsterbach,Germany,NA,NA,NA,802,210,592
+Krefeld,Germany,NA,NA,NA,752,229,523
+Köln,Germany,NA,NA,NA,965,284,681
+Köthen (Anhalt),Germany,NA,NA,NA,562,233,329
+Leipzig,Germany,114,3,111,857,293,564
+Leverkusen,Germany,NA,NA,NA,712,221,491
+Mainz,Germany,122,3,119,NA,NA,NA
+Mannheim,Germany,NA,NA,NA,860,268,592
+Markkleeberg,Germany,NA,NA,NA,775,234,541
+Marl,Germany,NA,NA,NA,770,203,567
+Munster,Germany,NA,NA,NA,525,133,392
+Mönchengladbach,Germany,NA,NA,NA,614,152,462
+Neuss,Germany,NA,NA,NA,659,184,475
+Nordhausen,Germany,NA,NA,NA,381,161,220
+Oldenburg,Germany,NA,NA,NA,698,188,510
+Quedlinburg,Germany,NA,NA,NA,952,269,683
+Schmalkalden,Germany,NA,NA,NA,331,93,238
+Solingen,Germany,NA,NA,NA,701,183,518
+"Stuttgart, Südost",Germany,NA,NA,NA,813,231,582
+Wiesbaden,Germany,NA,NA,NA,910,250,660
+Witten,Germany,NA,NA,NA,743,179,564
+Wuppertal,Germany,NA,NA,NA,855,224,631
+Alexandroupoli,Greece,NA,NA,NA,439,38,401
+Mesolongi,Greece,NA,NA,NA,336,43,293
+Patras,Greece,NA,NA,NA,765,98,667
+Thessaloniki,Greece,NA,NA,NA,963,142,821
+Kolkata,India,269,0,269,NA,NA,NA
+Dublin,Ireland,NA,NA,NA,534,181,353
+Jerusalem,Israel,24,3,21,NA,NA,NA
+Florence,Italy,82,2,80,NA,NA,NA
+Rome,Italy,115,9,106,1259,224,1035
+Sendai,Japan,31,1,30,NA,NA,NA
+Nairobi,Kenya,304,2,302,NA,NA,NA
+Mexico City,Mexico,190,14,176,NA,NA,NA
+Morelia,Mexico,138,4,134,NA,NA,NA
+Querétaro,Mexico,98,10,88,NA,NA,NA
+Alkmaar,Netherlands,77,4,73,NA,NA,NA
+Breda,Netherlands,82,4,78,NA,NA,NA
+Eindhoven,Netherlands,68,2,66,NA,NA,NA
+Nieuwegein,Netherlands,70,4,66,NA,NA,NA
+Auckland,New Zealand,NA,NA,NA,1350,1058,292
+Dunedin,New Zealand,39,18,21,NA,NA,NA
+Hamilton,New Zealand,46,22,24,490,290,200
+Lodz,Poland,NA,NA,NA,538,252,286
+Gdansk,Poland,NA,NA,NA,971,439,532
+Lublin,Poland,204,3,201,NA,NA,NA
+Opole,Poland,NA,NA,NA,779,356,423
+Szczecin,Poland,NA,NA,NA,840,390,450
+Warsaw,Poland,130,1,129,592,244,348
+Wroclaw,Poland,NA,NA,NA,1135,645,490
+Lisbon,Portugal,94,1,93,NA,NA,NA
+Moscow,Russia,161,3,158,NA,NA,NA
+St. Petersburg,Russia,213,1,212,NA,NA,NA
+Singapore,Singapore,368,21,347,1787,225,1562
+Bratislava,Slovakia,215,2,213,NA,NA,NA
+Ganyesa,South Africa,NA,NA,NA,269,46,223
+Potchefstroom,South Africa,211,3,208,576,179,397
+Pretoria,South Africa,92,4,88,NA,NA,NA
+Cheonju,South Korea,NA,NA,NA,454,83,371
+Valencia,Spain,211,23,188,NA,NA,NA
+Örebro,Sweden,44,1,43,NA,NA,NA
+Lucerne,Switzerland,51,1,50,NA,NA,NA
+Lugano,Switzerland,40,1,39,NA,NA,NA
+Zurich,Switzerland,42,1,41,1353,638,715
+Istanbul,Turkey,NA,NA,NA,311,43,268
+Birmingham,UK,NA,NA,NA,861,429,432
+Brighton,UK,NA,NA,NA,566,164,402
+Bristol,UK,71,4,67,NA,NA,NA
+Edinburgh,UK,NA,NA,NA,312,104,208
+Exeter,UK,NA,NA,NA,329,180,149
+Glasgow,UK,NA,NA,NA,978,327,651
+Kingston upon Hull,UK,NA,NA,NA,484,142,342
+Leeds,UK,NA,NA,NA,699,269,430
+Leicester,UK,NA,NA,NA,417,114,303
+London,UK,NA,NA,NA,566,187,379
+Plymouth,UK,NA,NA,NA,1138,510,628
+Sheffield,UK,68,3,65,743,246,497
+Ames,USA,NA,NA,NA,391,124,267
+Baltimore,USA,82,5,77,NA,NA,NA
+Boston,USA,NA,NA,NA,2302,720,1582
+Chicago,USA,NA,NA,NA,1496,452,1044
+Concord,USA,NA,NA,NA,584,160,424
+Detroit,USA,NA,NA,NA,1612,411,1201
+Fresno,USA,73,6,67,NA,NA,NA
+Indianapolis,USA,NA,NA,NA,693,187,506
+Los Angeles,USA,NA,NA,NA,865,193,672
+Minneapolis,USA,NA,NA,NA,1391,281,1110
+New York,USA,NA,NA,NA,2280,719,1561
+Philadelphia,USA,NA,NA,NA,2528,762,1766
+Saint Louis,USA,NA,NA,NA,1745,423,1322
+San Diego,USA,NA,NA,NA,893,186,707
+San Francisco,USA,NA,NA,NA,878,174,704
+Seattle,USA,42,2,40,NA,NA,NA
+Tucson,USA,174,7,167,NA,NA,NA
+"Washington, DC",USA,79,4,75,2396,690,1706
+Worcester,USA,NA,NA,NA,1320,504,816
