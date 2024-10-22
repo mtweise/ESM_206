@@ -6,6 +6,8 @@ library(here)
 library(tidyverse)
 library(tidyr)
 library(tidygeocoder)
+library(dplyr)
+library(stringr)
 #Spatial libraries
 library(sf) #This helps with plotting boundaries and lots of other things
 library(rnaturalearth) #base commands and some maps
@@ -15,6 +17,9 @@ library(ggrepel) #labels
 ##read in data
 urban_data_raw <- read_csv(here("hw_1/data", "urban_data.csv")) |>
   clean_names()
+
+urban_data_wo_accent <- urban_data_raw %>%
+  mutate(city = str_replace_all(city, "Quer\x8etaro", "Queretaro"))
 
 #data types
 class(urban_data_raw$city)
@@ -56,12 +61,21 @@ continents <- data.frame(
                rep("South America", length(s_am))),
   country = c(n_am, s_am))
 
-urban_data_q4 <- urban_data_q3 |>
+urban_data_q4_pt1 <- urban_data_q3 |>
   full_join(continents) |>
   na.omit()
 
+urban_data_q4 <- urban_data_q4_pt1 |>
+  mutate(city = str_replace_all(city, "Quer\x8etaro", "Queretaro"))
+  
+
 cities_in_n_am <- unique(urban_data_q4$city[urban_data_q4$continent== "North America"])
 print(cities_in_n_am)
+
+#for shits and gigs
+cities_in_s_am <- unique(urban_data_q4$city[urban_data_q4$continent== "South America"])
+print(cities_in_s_am)
+#2 cities
 ###########################################
 
 ##question 5
@@ -70,18 +84,28 @@ print(cities_in_n_am)
 #South American cities. You may use figure styles other than boxplots. The figure should
 #follow the best practices of figure creation and captions.
 
-viol_bird_americas <- ggplot(data = urban_data_q4, aes(x = origin, y = count, fill = continent)) +
-  geom_violin(trim = FALSE) + 
-  labs(title = "Violin Plot of Exotic and Native Birds by Continent",
-       x = "Bird Type",
+
+geomcol_bird_americas <- ggplot(data = urban_data_q4, aes(x = city, y = count, fill = origin)) +
+  geom_col() + 
+  labs(title = "Exotic and Native Birds by City in North and South America",
+       x = "City",
        y = "Count") +
-  facet_wrap(~ continent) +  # This separates the plots by continent
-  theme_minimal() 
+  facet_grid(. ~ continent, scales = "free_x", space = "free_x") +  # This separates the plots by continent
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8),
+    panel.grid.major = element_blank(),  # Remove major gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.line = element_line(color = "black"),
+    strip.text = element_text(size = 12, face = "bold"),  # Adjust facet label text size and style
+    plot.margin = margin(t = 10, r = 20, b = 10, l = 20)
+  )
   
 # Display the plot
-print(viol_bird_americas)
+print(geomcol_bird_americas)
 
-
+ggsave(here("hw_1/figures", "q_5.jpg"), geomcol_bird_americas, dpi=500,
+       width=10, height=5, unit="in")
 ####################################################
 
 ##question 6
