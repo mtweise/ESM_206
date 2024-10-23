@@ -125,7 +125,7 @@ cities_americas <- unique(urban_data_q4$city)
 # Create a data frame with cities and their corresponding latitude and longitude
 city_coords <- data.frame(
   city = c("La Paz", "Porto Alegre", "Ottawa", "Vancouver", "Mexico City", 
-           "Morelia", "Querétaro", "Ames", "Baltimore", "Boston", 
+           "Morelia", "Queretaro", "Ames", "Baltimore", "Boston", 
            "Chicago", "Concord", "Detroit", "Fresno", "Indianapolis", 
            "Los Angeles", "Minneapolis", "New York", "Philadelphia", 
            "Saint Louis", "San Diego", "San Francisco", "Seattle", 
@@ -148,21 +148,20 @@ city_coords <- data.frame(
 
 #join coordinate df with existing df
 urban_data_q6 <- urban_data_q4 |>
-  full_join(city_coords) |>
-  
-
-##I NEED TO CHANGE THE CHARACTERS IN QUERTARO
-
+  full_join(city_coords)
 
 world_sf <- ne_countries(returnclass = "sf")
   
 city_locations <- urban_data_q6 |>
-  select(city, longitude, latitude)
+  select(city, longitude, latitude) |>
+  distinct()
   
 base_cities <- ggplot()+
   geom_sf(data= world_sf, fill= NA, color= "black")+
   geom_point(city_locations, mapping= aes(x=longitude, y=latitude), color="red",
-             size=3)+
+             size=2)+
+  geom_point(city_locations, mapping=aes(x=longitude, y=latitude), color="black",
+             size=0.5)+
   xlim(-170, -30) +  # Set longitude limits if necessary
   ylim(-60, 80) +
   theme_void()
@@ -174,22 +173,8 @@ base_cities_labels <- base_cities+
                    max.overlaps = 1000)
 base_cities_labels
 
-###chat helps
-# Assuming city_locations is your data frame with city names, latitudes, and longitudes
-city_loc <- city_locations %>%
-  mutate(continent = ifelse(latitude >= 0, "North America", "South America"))
-
-base_cities_gpt <- ggplot() +
-  geom_sf(data = world_sf, fill = NA, color = "black") +
-  geom_point(data = city_locations, 
-             mapping = aes(x = longitude, y = latitude, color = continent), 
-             size = 3) +
-  xlim(-170, -30) +  # Set longitude limits if necessary
-  ylim(-60, 80) +
-  theme_void() +
-  facet_wrap(~ continent, ncol = 1)  # Create separate panels for each continent
-
-print(base_cities_gpt)
+ggsave(here("hw_1/figures", "q_6.jpg"), base_cities_labels, dpi=500,
+       width=8, height=10, unit="in")
 
 
 
