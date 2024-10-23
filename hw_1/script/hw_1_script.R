@@ -41,14 +41,25 @@ s_am <- c("Argentina", "Bolivia", "Brazil",
          "Guyana", "Paraguay", "Peru", 
          "Suriname", "Uruguay", "Venezuela")
   
+##urban_data_q3 <- urban_data_raw |>
+  #filter(country %in% n_am | country %in% s_am) |> 
+  #pivot_longer(cols = starts_with("total") | starts_with("exotic") | starts_with("native"),
+               #names_to = c("origin", "species_type"),
+               #names_sep = "_", 
+               #values_to = "count") |>
+  #select(city, country, species_type, origin, count) |>
+  #na.omit()
+
+#you need to remove the plants
 urban_data_q3 <- urban_data_raw |>
-  filter(country %in% n_am | country %in% s_am) |> 
-  pivot_longer(cols = starts_with("total") | starts_with("exotic") | starts_with("native"),
-               names_to = c("origin", "species_type"),
-               names_sep = "_", 
-               values_to = "count") |>
-  select(city, country, species_type, origin, count) |>
-  na.omit()
+  select(city, country, exotic_bird, native_bird, total_bird) |>
+  drop_na() |>
+  filter(country %in% c(n_am, s_am)) |>
+  pivot_longer(cols= exotic_bird:total_bird,
+               names_to = "species_type", values_to = "species_richness")
+urban_data_q3
+
+#39 observ and 4 variabels
 ##################################################
 
 ##question 4
@@ -68,11 +79,11 @@ urban_data_q4_pt1 <- urban_data_q3 |>
 urban_data_q4 <- urban_data_q4_pt1 |>
   mutate(city = str_replace_all(city, "Quer\x8etaro", "Queretaro"))
   
-
+#unique cities per continent
 cities_in_n_am <- unique(urban_data_q4$city[urban_data_q4$continent== "North America"])
 print(cities_in_n_am)
+#10 cities
 
-#for shits and gigs
 cities_in_s_am <- unique(urban_data_q4$city[urban_data_q4$continent== "South America"])
 print(cities_in_s_am)
 #2 cities
@@ -83,9 +94,10 @@ print(cities_in_s_am)
 #paper to explain the species richness of exotic and native bird species in North and
 #South American cities. You may use figure styles other than boxplots. The figure should
 #follow the best practices of figure creation and captions.
+urban_data_q5 <-  urban_data_q4 |>
+  filter(species_type != "total_bird")
 
-
-geomcol_bird_americas <- ggplot(data = urban_data_q4, aes(x = city, y = count, fill = origin)) +
+geomcol_bird_americas <- ggplot(data = urban_data_q5, aes(x = city, y = species_richness, fill = species_type)) +
   geom_col() + 
   labs(title = "Exotic and Native Birds by City in North and South America",
        x = "City",
