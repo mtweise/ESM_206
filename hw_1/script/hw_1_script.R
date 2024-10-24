@@ -39,7 +39,7 @@ n_am <- c("Canada", "USA", "Mexico",
 s_am <- c("Argentina", "Bolivia", "Brazil", 
          "Chile", "Colombia", "Ecuador", 
          "Guyana", "Paraguay", "Peru", 
-         "Suriname", "Uruguay", "Venezuela")
+         "Suriname", "Uruguay", "Venezuela", "French Guyana")
   
 ##urban_data_q3 <- urban_data_raw |>
   #filter(country %in% n_am | country %in% s_am) |> 
@@ -51,7 +51,7 @@ s_am <- c("Argentina", "Bolivia", "Brazil",
   #na.omit()
 
 #you need to remove the plants
-urban_data_q3 <- urban_data_raw |>
+urban_data_q3 <- urban_data_wo_accent |>
   select(city, country, exotic_bird, native_bird, total_bird) |>
   drop_na() |>
   filter(country %in% c(n_am, s_am)) |>
@@ -59,7 +59,7 @@ urban_data_q3 <- urban_data_raw |>
                names_to = "species_type", values_to = "species_richness")
 urban_data_q3
 
-#39 observ and 4 variabels
+#39 observ and 4 variables
 ##################################################
 
 ##question 4
@@ -141,26 +141,27 @@ city_coords <- data.frame(
            "Chicago", "Concord", "Detroit", "Fresno", "Indianapolis", 
            "Los Angeles", "Minneapolis", "New York", "Philadelphia", 
            "Saint Louis", "San Diego", "San Francisco", "Seattle", 
-           "Tucson", "Washington, DC", "Worcester"),
+           "Tucson", "Washington, DC", "Worcester", "Cayenne"),
   
   latitude = c(-16.5000, -30.0331, 45.4215, 49.2827, 19.4326, 
                19.7054, 20.5884, 42.0340, 39.2904, 42.3601, 
                41.8781, 43.2081, 42.3314, 36.7378, 39.7684, 
                34.0522, 44.9778, 40.7128, 39.9526, 
                38.6270, 32.7157, 37.7749, 47.6062, 
-               32.2226, 38.8951, 42.2626),
+               32.2226, 38.8951, 42.2626, 4.937200),
   
   longitude = c(-68.1193, -51.2300, -75.6972, -123.1207, -99.1332, 
                 -101.1823, -100.3880, -93.6150, -76.6122, -71.0589, 
                 -87.6298, -71.5370, -83.0458, -119.7871, -86.1581, 
                 -118.2437, -93.2650, -74.0060, -75.1652, 
                 -90.1994, -117.1611, -122.4194, -122.3321, 
-                -110.9747, -77.0369, -71.8023)
+                -110.9747, -77.0369, -71.8023, -52.326000)
 )
 
 #join coordinate df with existing df
 urban_data_q6 <- urban_data_q4 |>
-  full_join(city_coords)
+  full_join(city_coords) |>
+  drop_na()
 
 world_sf <- ne_countries(returnclass = "sf")
   
