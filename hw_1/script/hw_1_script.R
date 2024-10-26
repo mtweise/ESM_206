@@ -182,12 +182,12 @@ print(base_cities)
 
 base_cities_labels <- base_cities+
   geom_label_repel(data=city_locations, aes(x=longitude, y=latitude, label= city),
-                   size=2, box.padding = 0.75, point.padding = 0.2, segment.color= "black",
+                   size=3, box.padding = 0.75, point.padding = 0.2, segment.color= "black",
                    max.overlaps = 1000)
 base_cities_labels
 
 ggsave(here("hw_1/figures", "q_6.jpg"), base_cities_labels, dpi=500,
-       width=8, height=10, unit="in")
+       width=8, height=9, unit="in")
 
 
 
