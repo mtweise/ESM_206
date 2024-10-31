@@ -10,6 +10,7 @@ library(janitor)
 library("patchwork") #good for organizing plots
 library(effsize) #for measuring effect sizes
 library(car) #companion for R regression is need for levene's test
+library(gitcreds)
 
 #Import the data
 trawl_clean <- read_csv(here("esm_206_oct30/data", "trawl_data.csv")) |>
