@@ -10,6 +10,8 @@ library(dplyr)
 library(patchwork)
 library(effsize) #for measuring effect sizes
 library(car)
+library(simpleboot)
+library(boot) #for bootstrapping
 
 #load data
 npgp_raw <- read_csv(here("hw_2/data", "npgp_data.csv")) |>
@@ -28,7 +30,7 @@ npgp_q1 <-  npgp_raw |>
   select(area,plastic_uncorrected) |>
   drop_na() |> filter(area != "B")
   
-#WRITE CSV
+write_csv(npgp_q1, here("hw_2/data", "q1.csv"))
 
 ##############################
 #Question 2
@@ -93,7 +95,8 @@ q2_figC
 q2_combined <- q2_figA/ (q2_figB+ q2_figC)
 q2_combined
 
-
+ggsave(here("hw_2/figures", "q2.jpg"), q2_combined, dpi=500,
+       width=8, height=8, unit="in")
 
 
 
@@ -115,6 +118,8 @@ q3_summary_table <- npgp_q1 |>
             max=max(plastic_uncorrected))
 q3_summary_table
 
+write_csv(q3_summary_table, here("hw_2/data", "q3.csv"))
+
 #####
 #Check the assumptions
 
@@ -126,11 +131,11 @@ q3_summary_table
 
 shapiro.test(areaA$plastic_uncorrected)
 #p-value = 0.06322
-#we fail to reject the null (not normally distributed)
+#we fail to reject the null (it is normally distributed)
 
 shapiro.test(areaC$plastic_uncorrected)
 #p-value = 3.44e-07
-#we reject the null (normally distributed)
+#we reject the null (not normally distributed)
 
 #Equal variance tests- Levene's test
 #H0: data for each group has the same variance
@@ -141,7 +146,7 @@ leveneTest(plastic_uncorrected ~ area, data=npgp_q1, center= "mean")
 #reject the null
 #the results mean one has a variance that's different than the other
 
-#Summary: area A is not normally distributed and variances are not equal
+#Summary: area C is not normally distributed and variances are not equal
 
 #################################
 #Question 4
@@ -149,6 +154,8 @@ leveneTest(plastic_uncorrected ~ area, data=npgp_q1, center= "mean")
 #State the null and alternative hypotheses for a two-sample test. Conduct the
 #test and provide the R output of the analysis
 
+
+#not nomral not t-test, instead wilcox
 #T-test
 #H0: The means of the two groups are the same
 #HA: The means of the two groups are different
@@ -167,6 +174,7 @@ t.test(plastic_uncorrected ~ area, data=npgp_q1, var.equal= FALSE)
 #Communicate your conclusion to the State using the necessary statistical
 #information, noting any caveats you have in interpretation
 
+
 #Caveats
 #non-parametric test
 #H0: The medians of the groups are the same
@@ -180,10 +188,12 @@ wilcox.test(plastic_uncorrected ~ area, data=npgp_q1)
 cohen.d(plastic_uncorrected ~ area, data=npgp_q1)
 #how many standard deviations apart are the means
 #lower (-1.535) upper (-0.229)
+#look at d estimate
 
 #unequal variance
 cohen.d(plastic_uncorrected ~ area, data=npgp_q1, pooled= FALSE)
 #lower (-1.535) upper (-0.2292)
+#-0.69
 
 ################################
 #Question 6
@@ -192,6 +202,33 @@ cohen.d(plastic_uncorrected ~ area, data=npgp_q1, pooled= FALSE)
 #analytical derivation or bootstrapping of the mean plastic density for Area A and Area C.
 #Results can be shown graphically or in a table. Provide a discussion of the similarities
 #and differences in your conclusion 
+
+#areaA and areaC- no overlap in confience interval. same conclusion
+
+
+
+#start of bootstrap
+set.seed(1345)
+#get the data into a vector
+area_C_vec <- as.vector(areaC$plastic_uncorrected)
+#make a vector of length 1000 of means from replicates
+C.mean <- one.boot(area_C_vec, mean, 1000)
+
+#get the bootstrapped confidence interval
+boot.ci(C.mean, conf=0.95) #use the percentile output
+
+
+
+area_A_vec <- as.vector(areaA$plastic_uncorrected)
+#make a vector of length 1000 of means from replicates
+A.mean <- one.boot(area_A_vec, mean, 1000)
+
+#get the bootstrapped confidence interval
+boot.ci(A.mean, conf=0.95)
+
+
+
+
 
 
 
