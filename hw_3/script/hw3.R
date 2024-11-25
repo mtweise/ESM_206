@@ -85,27 +85,6 @@ leveneTest(elasticity ~ region, data=clean_region)
 
 
 
-#testing out assumptions for transformed data
-plastic_data_clean_log10 <- plastic_data_clean |>
-  mutate(plastic_uncorrected_log10=log10(plastic_uncorrected))
-
-
-shapiro.test(log10(area_A$plastic_uncorrected)) #adding log10 also fail to reject the null aka it is normal
-shapiro.test(log10(area_B$plastic_uncorrected)) #same above
-shapiro.test(log10(area_C$plastic_uncorrected)) #before it looked like it wasnt normal, but now it's transformed and normal
-
-leveneTest(plastic_uncorrected_log10 ~ area, 
-           data=plastic_data_clean_log10) #fail to reject, we do have equal variance
-
-#we did a log10 of uncorrected plastic and when we didi that it became normal and 
-#variances are equal. now we can proceed without violating assumptions
-
-
-
-
-
-
-
 
 
 #####################
@@ -123,25 +102,14 @@ leveneTest(plastic_uncorrected_log10 ~ area,
 #HA- at least two means are not equal
 
 #clean data
-plastic_aov <- aov(plastic_uncorrected ~ area, data=plastic_data_clean)
-summary(plastic_aov)
+elasticity_aov <- aov(elasticity ~ region, data=clean_region)
+summary(elasticity_aov)
+#p-value is 0.000298 (at least two means are not equal)
 
-#log10 transformed data
-plastic_aov_log10 <- aov(plastic_uncorrected_log10 ~ area,
-                         data=plastic_data_clean_log10)
-summary(plastic_aov_log10)
 
 #nonparametric 
-kruskal.test(plastic_uncorrected ~ area, data=plastic_data_clean)
-
-
-#multiple comparison tests
-TukeyHSD(plastic_aov_log10)
-#b-c means could have come from the same population
-
-pairwise.wilcox.test(plastic_data_clean$plastic_uncorrected,
-                     plastic_data_clean$area, p.adjust.method = "bonferroni")
-
+kruskal.test(elasticity ~ region, data=clean_region)
+#p-value is 0.0003089
 
 
 ####################
@@ -150,6 +118,13 @@ pairwise.wilcox.test(plastic_data_clean$plastic_uncorrected,
 #there is evidence for disproportional burdens between rich and poor in 1-2 paragraphs.
 #You may use a figure OR table to support your discussion
 
+#multiple comparison tests
+TukeyHSD(elasticity_aov)
+#USA-LatAm, USA-EU, USA_Africa are significant
+
+pairwise.wilcox.test(clean_region$elasticity,
+                     clean_region$region, p.adjust.method = "bonferroni")
+#all of USA comparisons
 
 
 
