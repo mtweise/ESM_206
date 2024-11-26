@@ -42,10 +42,10 @@ mod_clean_lakes_data <- clean_lakes_data |>
          shared= shared +1)
 
 #remake figure 1 in budolfson
-budolfson_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=shared))+
+budolfson_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
   geom_point()+
-  scale_x_continuous(trans='log10')+
-  labs(x="Area", y="Shared richness")+
+  scale_y_continuous(trans='log10')+
+  labs(x="Area", y="dna richness")+
   geom_smooth(method="lm", se=FALSE, color="black")+
   theme_bw()
 budolfson_plot_data
@@ -55,10 +55,10 @@ budolfson_output_edna <- lm(area_ha ~ log10(dna_richness), data=mod_clean_lakes_
 budolfson_output_edna
 #output is intercept (y int= -250731) and slope of the line (log10= 308797)
 
-
 summary(budolfson_output_edna)
 #null for is that intercept is 0,0
 #how much of the variability is explained by the model? multiple r square (0.09559)
+
 
 #plot using the output of the linear model
 b_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
@@ -131,6 +131,141 @@ ncvTest(budolfson_output_edna)
 
 
 
+####Office hours
+#log area lake and log area richness
+
+#clean data- pivot longer (method)
+
+
+#import data
+
+data_mod <- lakes_data |>
+  select(area_ha, dna_richness, trad_richness) |>
+  pivot_longer(dna_richness:trad_richness,
+               names_to = "method", values_to = "richness") |>
+  mutate(area_log10=log10(area_ha)) |>
+  mutate(richness_log10_plus1=log10(richness+1))
+data_mod
+
+#simple linear regression and testing assumptions
+#vosually inspect linear and it was linear
+#calc bic
+#calc ncv dont have to reposrt is there evidence for homo vs hetro. nromailty with residuals?
+#summary table
+#it's not normal or homo. not do anything different but should report it
+#could transform
+dna_only <- 
+
+
+  
+  
+  #remake figure 1 in budolfson
+  budolfson_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
+  geom_point()+
+  scale_y_continuous(trans='log10')+
+  labs(x="Area", y="dna richness")+
+  geom_smooth(method="lm", se=FALSE, color="black")+
+  theme_bw()
+budolfson_plot_data
+
+#Running the OLS linear regression
+budolfson_output_edna <- lm(area_ha ~ log10(dna_richness), data=mod_clean_lakes_data)
+budolfson_output_edna
+#output is intercept (y int= -250731) and slope of the line (log10= 308797)
+
+summary(budolfson_output_edna)
+#null for is that intercept is 0,0
+#how much of the variability is explained by the model? multiple r square (0.09559)
+
+
+#plot using the output of the linear model
+b_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
+  geom_point()+
+  scale_x_continuous(trans='log10')+
+  labs(x="Area (hectares)", y="Species Richness")+
+  geom_abline(intercept=coef(budolfson_output_edna)[1], slope=coef(budolfson_output_edna)[2])+
+  theme_bw()
+b_plot_data
+
+#????????? what happened
+#do i repeat with trad data?
+
+#looking at assumptions
+residuals <- ggplot(budolfson_output_edna, aes(x=.fitted, y=.resid))+
+  geom_point()+
+  geom_hline(yintercept = 0)+
+  theme_bw()
+residuals
+#look at how the data are scattered around that fitted value
+
+#lets make a qqplot to look at normality of the residuals
+qq_residuals <- ggplot(budolfson_output_edna, aes(sample=.resid))+
+  geom_qq()+
+  geom_qq_line()+
+  theme_bw()
+qq_residuals
+
+#test the assumptions
+shapiro.test(budolfson_output_edna$residuals)
+#we reject the null therefore you can do nonpramatric or transform data
+#linear regression is very robust against slight assumptions of the normality
+
+ncvTest(budolfson_output_edna)
+#we reject so unequal variance
+  
+  
+
+
+
+
+
+  
+#null for traditional
+  m.trad.0 <- lm(richness_log10_plus1 ~1)
+
+#multiple linear regression
+#null
+m.0 <- lm(richness_log10_plus1 ~1, data_mod)
+summary(m.0)
+
+
+#model with area only
+m.1 <- lm(richness_log10_plus1~area_log10, data_mod)
+summary(m.1)
+#model is significant, 33% of the variability explained
+
+m.1_residuals <- ggplot(residuals, aes(sample=residuals))+
+  stat_qq()+
+  stat_qq_line()+
+  theme(bw)
+
+#test assumptions
+ncvTest(m.1) 
+shapiro.test(m.1$residuals)
+#violation of homoscedasticty and it's not normal
+
+m.2 <- lm(richness_log10_plus1 ~method, data_mod)
+
+m.3 <- lm(richness_log10_plus1 ~method + area_log10, data_mod)
+#int 0.75 slope is 0.15 b2 is 0.056 (but not sig)
+
+#when i force it to have same parallel no difference in
+
+#model with interaction term
+m.4 <- lm(richness_log10_plus1 ~method* area_log10, data_mod)
+summary(m.4)
+#just from coefficinets methods never matters
+
+#BIC Lowest value is the best model. here it is model m.1
+BIC(m.0)
+BIC(m.1)
+BIC(m.2)
+BIC(m.3)
+BIC(m.4)
+
+#plot for overlay of eDNA and traditional
+best_model <- ggplot(data=trad_only, aes(x=area_log10, y=richness_log10_plus1))+
+  geom_point(data=dna_only, aes(x=area_log10, y=richness_log10_plus1))
 
 
 
