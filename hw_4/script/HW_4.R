@@ -16,6 +16,7 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(car) #for lveleneTest() for equal variances
+library(dplyr)
 
 ########################################
 #Question 1
@@ -34,9 +35,14 @@ clean_lakes_data <- lakes_data |> clean_names() |>
    select(area_ha, dna_richness, trad_richness, shared) |>
   drop_na()
 
+#mutate so we can take log10 by adding 1 to species richness
+mod_clean_lakes_data <- clean_lakes_data |>
+  mutate(dna_richness= dna_richness +1,
+         trad_richness= trad_richness +1,
+         shared= shared +1)
 
 #remake figure 1 in budolfson
-budolfson_plot_data <- ggplot(clean_lakes_data, aes(x=area_ha, y=shared))+
+budolfson_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=shared))+
   geom_point()+
   scale_x_continuous(trans='log10')+
   labs(x="Area", y="Shared richness")+
@@ -45,26 +51,49 @@ budolfson_plot_data <- ggplot(clean_lakes_data, aes(x=area_ha, y=shared))+
 budolfson_plot_data
 
 #Running the OLS linear regression
-budolfson_output_edna <- lm(area_ha ~ log10(dna_richness), data=clean_lakes_data)
-######add 1 to all values for we can take log10
+budolfson_output_edna <- lm(area_ha ~ log10(dna_richness), data=mod_clean_lakes_data)
 budolfson_output_edna
-#output is intercept (y int) and slope of the line (log10)
-summary(budolfson_output)
+#output is intercept (y int= -250731) and slope of the line (log10= 308797)
+
+
+summary(budolfson_output_edna)
 #null for is that intercept is 0,0
-#how much of the variability is explained by the model? multiple r square (21%)
+#how much of the variability is explained by the model? multiple r square (0.09559)
 
 #plot using the output of the linear model
-b_plot_data <- ggplot(data_mod, aes(x=pc_gdp, y=elasticity))+
+b_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
   geom_point()+
   scale_x_continuous(trans='log10')+
-  labs(x="GDP per capita (2005 US$", y="Elasticity")+
-  geom_abline(intercept=coef(budolfson_output)[1], slope=coef(budolfson_output)[2])+
+  labs(x="Area (hectares)", y="Species Richness")+
+  geom_abline(intercept=coef(budolfson_output_edna)[1], slope=coef(budolfson_output_edna)[2])+
   theme_bw()
 b_plot_data
 
+#????????? what happened
+#do i repeat with trad data?
 
+#looking at assumptions
+residuals <- ggplot(budolfson_output_edna, aes(x=.fitted, y=.resid))+
+  geom_point()+
+  geom_hline(yintercept = 0)+
+  theme_bw()
+residuals
+#look at how the data are scattered around that fitted value
 
+#lets make a qqplot to look at normality of the residuals
+qq_residuals <- ggplot(budolfson_output_edna, aes(sample=.resid))+
+  geom_qq()+
+  geom_qq_line()+
+  theme_bw()
+qq_residuals
 
+#test the assumptions
+shapiro.test(budolfson_output_edna$residuals)
+#we reject the null therefore you can do nonpramatric or transform data
+#linear regression is very robust against slight assumptions of the normality
+
+ncvTest(budolfson_output_edna)
+#we reject so unequal variance
 
 
 
