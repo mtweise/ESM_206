@@ -32,14 +32,13 @@ lakes_data <- read.csv(here("hw_4/data", "lakes_data.csv"))
 
 #modify the data for just the variables needed and cleaning it
 clean_lakes_data <- lakes_data |> clean_names() |>
-   select(area_ha, dna_richness, trad_richness, shared) |>
+   select(area_ha, dna_richness, trad_richness) |>
   drop_na()
 
 #mutate so we can take log10 by adding 1 to species richness
 mod_clean_lakes_data <- clean_lakes_data |>
   mutate(dna_richness= dna_richness +1,
-         trad_richness= trad_richness +1,
-         shared= shared +1)
+         trad_richness= trad_richness +1)
 
 #remake figure 1 in budolfson
 budolfson_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
@@ -110,14 +109,6 @@ ncvTest(budolfson_output_edna)
 
 
 
-
-
-
-
-
-
-
-
 ########################################
 #Question 3
 #(Proficient) Make a one-paragraph recommendation to your supervisor if they should
@@ -150,7 +141,7 @@ data_mod
 #simple linear regression and testing assumptions
 #vosually inspect linear and it was linear
 #calc bic
-#calc ncv dont have to reposrt is there evidence for homo vs hetro. nromailty with residuals?
+#calc ncv dont have to report is there evidence for homo vs hetro. nromailty with residuals?
 #summary table
 #it's not normal or homo. not do anything different but should report it
 #could transform
@@ -159,17 +150,17 @@ dna_only <-
 
   
   
-  #remake figure 1 in budolfson
-  budolfson_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
+#remake figure 1 in budolfson
+budolfson_plot_data <- ggplot(data_mod, aes(x=area_ha, y=richness_log10_plus1))+
   geom_point()+
-  scale_y_continuous(trans='log10')+
-  labs(x="Area", y="dna richness")+
+  scale_x_continuous(trans='log10')+
+  labs(x="Area", y="log richness")+
   geom_smooth(method="lm", se=FALSE, color="black")+
   theme_bw()
 budolfson_plot_data
 
 #Running the OLS linear regression
-budolfson_output_edna <- lm(area_ha ~ log10(dna_richness), data=mod_clean_lakes_data)
+budolfson_output_edna <- lm(area_ha ~ log10(richness_log10_plus1), data=data_mod)
 budolfson_output_edna
 #output is intercept (y int= -250731) and slope of the line (log10= 308797)
 
@@ -177,43 +168,7 @@ summary(budolfson_output_edna)
 #null for is that intercept is 0,0
 #how much of the variability is explained by the model? multiple r square (0.09559)
 
-
-#plot using the output of the linear model
-b_plot_data <- ggplot(mod_clean_lakes_data, aes(x=area_ha, y=dna_richness))+
-  geom_point()+
-  scale_x_continuous(trans='log10')+
-  labs(x="Area (hectares)", y="Species Richness")+
-  geom_abline(intercept=coef(budolfson_output_edna)[1], slope=coef(budolfson_output_edna)[2])+
-  theme_bw()
-b_plot_data
-
-#????????? what happened
-#do i repeat with trad data?
-
-#looking at assumptions
-residuals <- ggplot(budolfson_output_edna, aes(x=.fitted, y=.resid))+
-  geom_point()+
-  geom_hline(yintercept = 0)+
-  theme_bw()
-residuals
-#look at how the data are scattered around that fitted value
-
-#lets make a qqplot to look at normality of the residuals
-qq_residuals <- ggplot(budolfson_output_edna, aes(sample=.resid))+
-  geom_qq()+
-  geom_qq_line()+
-  theme_bw()
-qq_residuals
-
-#test the assumptions
-shapiro.test(budolfson_output_edna$residuals)
-#we reject the null therefore you can do nonpramatric or transform data
-#linear regression is very robust against slight assumptions of the normality
-
-ncvTest(budolfson_output_edna)
-#we reject so unequal variance
-  
-  
+ 
 
 
 
@@ -233,11 +188,12 @@ summary(m.0)
 m.1 <- lm(richness_log10_plus1~area_log10, data_mod)
 summary(m.1)
 #model is significant, 33% of the variability explained
-
+residuals <- as.data.frame(m.1$residuals) |> rename(residuals="m.1$residuals")
 m.1_residuals <- ggplot(residuals, aes(sample=residuals))+
   stat_qq()+
   stat_qq_line()+
-  theme(bw)
+  theme_bw()
+m.1_residuals
 
 #test assumptions
 ncvTest(m.1) 
@@ -265,8 +221,14 @@ BIC(m.4)
 
 #plot for overlay of eDNA and traditional
 best_model <- ggplot(data=trad_only, aes(x=area_log10, y=richness_log10_plus1))+
-  geom_point(data=dna_only, aes(x=area_log10, y=richness_log10_plus1))
+  geom_point(data=dna_only, aes(x=area_log10, y=richness_log10_plus1), color='red', alpha=0.25, size=2)+
+  geom_point(color='blue', alpha=0.25, size=2)+
+  geom_smooth(method="lm", color="black")+
+  xlab("Log10(Area (ha))") +
+  ylab("Log10(Species richness +1)")+
+  theme_bw()
 
+ggsave()
 
 
 

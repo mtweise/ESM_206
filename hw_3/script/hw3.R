@@ -126,7 +126,12 @@ pairwise.wilcox.test(clean_region$elasticity,
                      clean_region$region, p.adjust.method = "bonferroni")
 #all of USA comparisons
 
+####################
+#OH
+#after ANOVA, reject null is favor of alt. one mean is different. which mean?
+#Tukey for q3 = tukey output no alpha adjustment so you need to calc that
+#it gives you p-adjusted 0.05/ however many comparisons (6)
 
-
+#make a boxplot with regionson x add 1:1 line for elasticity to compare means eu is both groups
 
 
