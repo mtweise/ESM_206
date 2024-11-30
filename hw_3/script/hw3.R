@@ -4,7 +4,7 @@
 #world from 1992 to 2017. An elasticity <1 means the initial tax burden falls disproportionately
 #on the poor, whereas a value >1 indicates the initial tax burden falls disproportionately on the
 #rich. You are tasked with assessing if the mean elasticity between the regions of Africa (“Africa”),
-#the European Union (“EU”), LaIn America (“LatAm”), and the United States (“USA”) are
+#the European Union (“EU”), Latin America (“LatAm”), and the United States (“USA”) are
 #different. Assume observations are independent between years. You are tasked with identifying
 #which regions are different from each other, and if there is evidence for regionally
 #disproportional burdens between rich and poor.
@@ -48,6 +48,7 @@ elasticity_obs <- ggplot(clean_region, aes (x= region, y= elasticity))+
   geom_jitter(position = position_jitter(width=0.2, height=0), size= 2.5,
               color= "dodgerblue", alpha=0.5)+
   labs(x="Region", y="Elasticity")+
+  ggtitle("Elasticity by Region")+
   theme_bw()
 
 elasticity_obs
@@ -62,6 +63,9 @@ summary_table <- clean_region|>
             median=median(elasticity),
             max=max(elasticity))
 print(summary_table)
+write.csv(summary_table, "hw_3/data/summary_table.csv", row.names = FALSE)
+
+
 
 #testing our assumptions for observed data
 
@@ -111,6 +115,16 @@ summary(elasticity_aov)
 kruskal.test(elasticity ~ region, data=clean_region)
 #p-value is 0.0003089
 
+elasticity_obs2 <- ggplot(clean_region, aes(x = region, y = elasticity)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(position = position_jitter(width = 0.2, height = 0), 
+              size = 2.5, color = "dodgerblue", alpha = 0.5) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red", size = 1) +
+  labs(title = "Elasticity by Region", 
+       x = "Region", y = "Elasticity") +
+  theme_bw() +
+  theme(axis.line = element_line(color = "black"))
+print(elasticity_obs2)
 
 ####################
 #Question 3
@@ -120,7 +134,21 @@ kruskal.test(elasticity ~ region, data=clean_region)
 
 #multiple comparison tests
 TukeyHSD(elasticity_aov)
-#USA-LatAm, USA-EU, USA_Africa are significant
+#USA-LatAm,  USA_Africa are significant
+#adjusted alpha is 0.008333
+
+# Run the Tukey HSD test
+tukey_results <- TukeyHSD(elasticity_aov)
+
+# Extract the comparisons for the region factor
+tukey_df <- as.data.frame(tukey_results$region)
+
+# Add row names as a column for clarity
+tukey_df <- cbind(Comparison = rownames(tukey_df), tukey_df)
+
+# Save the data frame to a CSV file
+write.csv(tukey_df, "hw_3/data/tukey_results.csv", row.names = FALSE)
+
 
 pairwise.wilcox.test(clean_region$elasticity,
                      clean_region$region, p.adjust.method = "bonferroni")
