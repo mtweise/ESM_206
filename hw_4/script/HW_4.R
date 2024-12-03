@@ -159,6 +159,7 @@ slr_plot_dna <- ggplot(dna_only, aes(x=area_log10, y=richness_log10_plus1))+
   annotate("text", x=5, y=1.05, label=paste("Null model"), color= "darkgray", size=3)+
   annotate("text", x=5, y=1.75, label=paste("SLR"), color= "blue", size=3)+
   theme_bw()
+slr_plot_dna
 ggsave(here("hw_4/figures", "SLR_dna.png"), slr_plot_dna, dpi=300, height=4, width=6, unit="in")
 
 
@@ -177,7 +178,7 @@ shapiro.test(m.trad.1$residuals) #pvalue= 0.05093
 
 #plot for both null and SLR TRAD
 mean_y_trad <- mean(trad_only$richness_log10_plus1)
-slr_plot_dna <- ggplot(trad_only, aes(x=area_log10, y=richness_log10_plus1))+
+slr_plot_trad <- ggplot(trad_only, aes(x=area_log10, y=richness_log10_plus1))+
   geom_hline(yintercept = mean_y_trad, color="darkgray", size=1.25)+
   geom_point(color="black", alpha=0.5, size=2)+
   geom_smooth(method="lm", color="blue")+
@@ -187,6 +188,7 @@ slr_plot_dna <- ggplot(trad_only, aes(x=area_log10, y=richness_log10_plus1))+
   annotate("text", x=5, y=1.05, label=paste("Null model"), color= "darkgray", size=3)+
   annotate("text", x=5, y=1.75, label=paste("SLR"), color= "blue", size=3)+
   theme_bw()
+slr_plot_trad
 ggsave(here("hw_4/figures", "SLR_trad.png"), slr_plot_dna, dpi=300, height=4, width=6, unit="in")
 
 
@@ -209,7 +211,7 @@ m.1_residuals <- ggplot(residuals, aes(sample=residuals))+
 m.1_residuals
 
 #test assumptions
-ncvTest(m.1) #pvalue=0.0375
+ncvTest(m.1) #pvalue=0.0375 -alternative is heteroscedastic null is homo
 shapiro.test(m.1$residuals) #pvalue= 2.259e-06
 #violation of homoscedasticty and it's not normal
 
