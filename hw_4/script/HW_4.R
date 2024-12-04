@@ -207,6 +207,7 @@ residuals <- as.data.frame(m.1$residuals) |> rename(residuals="m.1$residuals")
 m.1_residuals <- ggplot(residuals, aes(sample=residuals))+
   stat_qq()+
   stat_qq_line()+
+  labs(x="Normal Prediction", y="Observed data")+
   theme_bw()
 m.1_residuals
 
