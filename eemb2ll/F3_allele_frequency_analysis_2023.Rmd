@@ -1,0 +1,187 @@
+---
+title: "F3 Allele Frequency Mann-Whitney U Analysis 2023"
+author: "Adriane McDonald"
+date: "2023-04-05"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Exercise 1: Observing Evolution in Action Analysis
+
+The **Mann-Whitney U test** is a popular nonparametric test to compare outcomes between two independent groups. In statistics, nonparametric tests do not require the distribution to meet required assumptions to be analyzed. As you move through this analysis, you will see that the **population data does not have a normal distribution**, so a nonparametric test is used instead of a t-test, which you have previously explored in the week 4 Protist Lab. 
+
+The Mann-Whitney U test can be thought of as comparing the medians between two populations. It is used to test whether two samples are likely to derive from the same population. The null hypothesis for the Mann-Whitney U test would be that the two populations are equal. 
+
+As a reminder, you have been conducting a multi-week experiment to assess the effect and strength of natural selection on *Drosophilia melanogaster.* You have collected allele frequency data from 4 generations of *Drosophilia* (F0, F1, F2, and F3) and now we get to analyze your data to test your original hypothesis! 
+
+##### Please remember that this R markdown data analysis file uses data that is not from your experiment. This is from a previous dataset.  
+
+First, we want to make sure we have the appropriate materials:
+
+1) Posit Cloud or R and RStudio
+2) Fly_Data - (F3) Vial.csv file 
+
+Now, let's dive deeper into the analysis
+
+```{r setup, include=FALSE}
+
+#installing appropriate packages
+install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("kableExtra")
+install.packages("qqplotr")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(qqplotr)
+
+```
+
+## 1. Load CSV file into R
+
+Here, you can load the csv file of the historical dataset into R and view it using the print() command. 
+
+```{r, Import Data, include = FALSE}
+Fly_data <- read.csv("Copy of Fly_Data - (F3) Vial.csv")
+
+#View dataset
+
+print(Fly_data)
+```
+
+
+    Looking at the 'Fly_Data' data sheet, each column has a unique name. We will use these names to identify groups that we want to compare. Next, we will plot and visually compare our phenotype data between each group. This will allow us to identify groups that we may want to compare.
+
+```{r, Plot Grouped Data, results = 'hide'}
+
+# Reformat datasheet for plotting
+Plotting_Data <- rbind( data.frame(Allele = "w-",
+                                   Treatment = "Dark",
+                                   Allele_frequency = Fly_data$Dark_Treatment_Frequency_for_white_eyed_Allele),
+                        data.frame(Allele = "w-",
+                                   Treatment = "Light",
+                                   Allele_frequency = Fly_data$
+Light_Treatment_Frequency_for_white_eyed_Allele))
+
+# Create a variable combining species and treatment
+Plotting_Data$Group <- as.factor(paste(Plotting_Data$Treatment,
+                                       Plotting_Data$Allele,
+                                       sep = " "))                                   
+
+```
+
+
+## 2. Exploratory data visualization
+
+    Prior to analyzing data any further, exploring the dataset for trends present. What do the histogram and box plot tell you about the data?
+
+```{r}
+#hist() generates a histogram of the variable of interest 
+#histograms used to view the distribution of data
+
+ggplot(Plotting_Data, aes(x = Allele_frequency, fill = Group))+
+  geom_histogram(color = "#e9ecef", alpha = 0.6)+
+  facet_wrap(~Group)+
+  labs(x = "Average Allele Frequency",
+       y = "Count")
+
+#Here, we can create a boxplot to visually compare the white-eyed allele frequencies of the light vs. dark treatments 
+
+plot(Plotting_Data$Allele_frequency ~ Plotting_Data$Group, main = "Fly white-eyed allele frequency across treatments", xlab = "Treatment", ylab = "Average Allele Frequency", pch = 19)
+```
+
+## 3. Descriptive Statistics
+
+    It is important to have a good hold on your data set before performing any tests and another way to do this is through descriptive statistics, which not only describe the data, but help to determine if there are any inconsistencies. Some things you might be wondering about your data are:
+
+1. Are there any outliers? What are they?
+2. Any missing data?
+3. What is the range of my data for each treatment?
+4. Are my standard deviation value large relative to the mean?
+
+
+```{r}
+
+summary_Plotting_Data <- Plotting_Data %>%
+  group_by(Group) %>%
+  summarize(
+    mean_allelefr = mean(Allele_frequency, na.rm = TRUE),
+    sd_allelefr = sd(Allele_frequency, na.rm = TRUE),
+    median_allelefr = median(Allele_frequency, na.rm = TRUE),
+    min_allelefr = min(Allele_frequency, na.rm = TRUE),
+    max_allelefr = max(Allele_frequency, na.rm = TRUE),
+    iqr_allelefr = IQR(Allele_frequency, na.rm = TRUE),
+    sample_size = n(),
+  )
+  
+ summary_Plotting_Data %>%
+   kbl(col.names = c("Treatment", "Mean", "Standard Deviation","Median", "Minimum", "Maximum", "Interquartile Range", "Sample Size"),
+       align = 'c') %>%
+   kable_classic(full_width = F, html_font = "Cambria")
+ 
+```
+
+## 4. Normality Tests
+
+    Based on the exploratory analyses we have done so far, it looks like we will use Mann-Whitney U to evaluate our data. However, it is important to first evaluate our assumptions to make sure we are performing an appropriate and reliable statistical test. Now, we will test for normality using a Shapiro-Wilk normality test and QQ plots.
+    
+    A normal QQ plot is a quantile-quantile plot that is used to assess if a dataset matches a normal distribution. It is a scatterplot created by plotted two sets of quantiles against each other. Theoretical quantiles (a.k.a the standard normal variate) are plotted on the x-axis and the ordered values for our variable of interest are on the y-axis. 
+    If the points plotted on the graph lie on a straight line then we can say the data distribution is normal. 
+
+A p-value of < 0.05 would indicate that we reject the assumption of normality AKA your data does not follow a normal distribution.
+
+```{r}
+
+Plotting_Data %>%
+  group_by(Group) %>%
+  summarize('W Stat' = shapiro.test(Allele_frequency)$statistic,
+            p.value = shapiro.test(Allele_frequency)$p.value)
+
+ggplot(data = Plotting_Data, mapping = aes(sample = Allele_frequency, color = Group, fill = Group))+
+  stat_qq_band(alpha = 0.5, conf = 0.95, qtype = 1, bandType = "boot") +
+  stat_qq_line(identity = TRUE) +
+  stat_qq_point(col = "black")+
+  facet_wrap(~Group, scales = "free") +
+  labs(x = "Theoretical Quantiles", y = "Sample Quantiles") + theme_bw()
+```
+
+
+
+Through these explorations, we can conclude that the data is not normally distributed. 
+
+
+## 5. Mann-Whitney U Test
+
+    Now we can run the Mann-Whitney U test using wilcox.test() function
+
+    The Mann Whitney U is used to compare ranks (medians) between two unpaired samples        (non-parametric alternative to two-sample t-test)
+
+```{r}
+
+mwu_allelefrequency <- wilcox.test(Allele_frequency ~ Group, data = Plotting_Data, na.rm = TRUE, exact = FALSE, conf.int = TRUE)
+
+print(mwu_allelefrequency)
+```
+
+## 6. Mann-Whitney U Test Interpretation
+
+The Mann-Whitney U test results in a two-sided test p-value = 0.04641. As our significance level is 0.05, this indicates that we should reject the null hypothesis that the distributions of the allele frequencies between treatments are equal. 
+
+##### Please remember that this R markdown data analysis file uses data that is not from your experiment. This is from a previous dataset.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
