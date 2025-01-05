@@ -69,3 +69,4 @@ png(here("hw_5", "PCA_woodmouse_plot.png"), width = 6, height = 4, units = "in",
 s.class(woodmouse_pca$li, fac = pop_factor, col = rainbow(length(unique(pop_factor))))
 dev.off()
 
+#making sure new git token worked
