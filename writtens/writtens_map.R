@@ -224,7 +224,7 @@ final_map <- ggplot() +
   geom_sf(data = world, fill = "antiquewhite1", color = "gray80", size = 0.2) +
   
   # Points with colorblind-friendly scale and smaller size
-  geom_sf(data = edna_sf, aes(color = combined_type), size = 1.2, alpha = 0.9) +
+  geom_sf(data = edna_sf, aes(color = combined_type), size = 1.8, alpha = 0.9) +
   scale_color_viridis_d(option = "viridis", end = 0.9) +
   
   # Labels
@@ -316,3 +316,382 @@ print(n_comparison_plot)
 # 3. Save
 ggsave(here("writtens/figures", "edna_sample_comparison.jpg"), 
        n_comparison_plot, width = 10, height = 7, dpi = 300)
+
+
+#####################
+#patchwork
+
+
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(ggrepel)
+library(here)
+library(patchwork) # The magic package for A) and B)
+
+# --- 1. PREP DATA (Same as before) ---
+edna_data <- read_csv(here("writtens/data", "edna_3.csv")) %>%
+  janitor::clean_names() %>%
+  mutate(paper_label = paste0(author, " (", year, ")"),
+         full_label = paste0(location, "\n(", author, ", ", year, ")")) %>%
+  unite("combined_type", e_dna_type_1:e_dna_type_3, sep = " & ", na.rm = TRUE)
+
+edna_sf <- st_as_sf(edna_data, coords = c("long", "lat"), crs = 4326)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# --- 2. PLOT A (Map) ---
+plot_a <- ggplot() +
+  geom_sf(data = world, fill = "antiquewhite1", color = "gray80", size = 0.2) +
+  geom_sf(data = edna_sf, aes(color = combined_type), size = 1.8) +
+  scale_color_viridis_d(option = "viridis", end = 0.9) +
+  geom_label_repel(data = edna_sf, aes(label = full_label, geometry = geometry),
+                   stat = "sf_coordinates", size = 2.5, fontface = "italic",
+                   box.padding = 0.8, max.overlaps = Inf) +
+  coord_sf(crs = "+proj=robin") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        axis.text = element_blank(),
+        panel.grid = element_blank()) +
+  labs(title = "Metagenomic eDNA Study Locations", color = "Substrate Type")
+
+# --- 3. PLOT B (Bar Chart) ---
+plot_b <- ggplot(edna_data, aes(x = reorder(paper_label, n), y = n, fill = combined_type)) +
+  geom_col() +
+  geom_text(aes(label = n), hjust = -0.2, size = 3, fontface = "bold") +
+  coord_flip() +
+  scale_fill_viridis_d(option = "viridis", end = 0.9) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        axis.title.y = element_blank()) +
+  labs(title = "Sample Size Comparison", fill = "Substrate Type", y = "n")
+
+# --- 4. COMBINE AND FORMAT LEGEND ---
+# Using / stacks them vertically. Use + to put them side-by-side.
+combined_figure <- (plot_a / plot_b) + 
+  plot_layout(guides = "collect") + # This merges the legends into one
+  plot_annotation(tag_levels = 'A') & # This adds the A) and B) automatically
+  theme(
+    legend.position = "bottom",
+    # MAKE LEGEND BIG AND READABLE
+    legend.title = element_text(size = 16, face = "bold"), 
+    legend.text = element_text(size = 14),
+    legend.key.size = unit(1, "cm") # Makes the color boxes/dots bigger too
+  )
+
+# --- 5. SAVE ---
+ggsave(here("writtens/figures", "edna_combined_04152026.jpg"), 
+       combined_figure, width = 12, height = 14, dpi = 300)
+
+
+##########
+#fixing it
+
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(ggrepel)
+library(here)
+library(patchwork)
+
+# --- 1. PREP DATA ---
+edna_data <- read_csv(here("writtens/data", "edna_3.csv")) %>%
+  janitor::clean_names() %>%
+  mutate(paper_label = paste0(author, " (", year, ")"),
+         full_label = paste0(location, "\n(", author, ", ", year, ")")) %>%
+  unite("combined_type", e_dna_type_1:e_dna_type_3, sep = " & ", na.rm = TRUE)
+
+edna_sf <- st_as_sf(edna_data, coords = c("long", "lat"), crs = 4326)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# --- 2. PLOT A: THE MAP (Sized Larger) ---
+plot_a <- ggplot() +
+  geom_sf(data = world, fill = "antiquewhite1", color = "gray80", size = 0.2) +
+  geom_sf(data = edna_sf, aes(color = combined_type), size = 2) +
+  scale_color_viridis_d(option = "viridis", end = 0.9) +
+  geom_label_repel(data = edna_sf, aes(label = full_label, geometry = geometry),
+                   stat = "sf_coordinates", size = 2.5, fontface = "italic",
+                   box.padding = 0.8, max.overlaps = Inf) +
+  coord_sf(crs = "+proj=robin") + 
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+    # KEEP grid lines but REMOVE axis labels/ticks
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid.major = element_line(color = "gray90", size = 0.2) 
+  ) +
+  labs(title = "Metagenomic eDNA Study Locations", color = "Substrate Type")
+
+# --- 3. PLOT B: THE BAR CHART ---
+plot_b <- ggplot(edna_data, aes(x = reorder(paper_label, n), y = n, fill = combined_type)) +
+  geom_col() +
+  geom_text(aes(label = n), hjust = -0.2, size = 3, fontface = "bold") +
+  coord_flip() +
+  scale_fill_viridis_d(option = "viridis", end = 0.9) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.title.y = element_blank(),
+    panel.grid.major.y = element_blank()
+  ) +
+  labs(title = "Sample Size Comparison", fill = "Substrate Type", y = "Number of Samples (n)")
+
+# --- 4. COMBINE WITH CUSTOM RATIOS ---
+combined_figure <- (plot_a / plot_b) + 
+  # Set the map to be 2.5x larger than the bar chart
+  plot_layout(heights = c(2.5, 1), guides = "collect") + 
+  plot_annotation(tag_levels = 'A') & 
+  theme(
+    legend.position = "bottom",
+    # ENHANCED LEGEND FOR READABILITY
+    legend.title = element_text(size = 14, face = "bold"), 
+    legend.text = element_text(size = 12),
+    legend.key.size = unit(1, "cm")
+  )
+
+# --- 5. SAVE ---
+ggsave(here("writtens/figures", "edna_combined_final.jpg"), 
+       combined_figure, width = 12, height = 15, dpi = 300)
+
+#####
+#round 3- clean
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(ggrepel)
+library(here)
+library(patchwork)
+
+# --- 1. PREP DATA ---
+edna_data <- read_csv(here("writtens/data", "edna_3.csv")) %>%
+  janitor::clean_names() %>%
+  mutate(paper_label = paste0(author, " (", year, ")"),
+         full_label = paste0(location, "\n(", author, ", ", year, ")")) %>%
+  unite("combined_type", e_dna_type_1:e_dna_type_3, sep = " & ", na.rm = TRUE)
+
+edna_sf <- st_as_sf(edna_data, coords = c("long", "lat"), crs = 4326)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# --- 2. PLOT A: THE MAP ---
+plot_a <- ggplot() +
+  geom_sf(data = world, fill = "antiquewhite1", color = "gray80", size = 0.2) +
+  geom_sf(data = edna_sf, aes(color = combined_type), size = 2) +
+  scale_color_viridis_d(option = "viridis", end = 0.9) +
+  geom_label_repel(data = edna_sf, aes(label = full_label, geometry = geometry),
+                   stat = "sf_coordinates", size = 2.5, fontface = "italic",
+                   box.padding = 0.6, max.overlaps = Inf) +
+  coord_sf(crs = "+proj=robin", expand = FALSE) + # expand=FALSE helps trim edges
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid.major = element_line(color = "gray90", size = 0.1),
+    # REDUCE MARGINS (Top, Right, Bottom, Left)
+    plot.margin = margin(t = 5, r = 0, b = -10, l = 0, unit = "pt") 
+  ) +
+  labs(title = "Metagenomic eDNA Study Locations", color = "Substrate Type")
+
+# --- 3. PLOT B: THE BAR CHART ---
+plot_b <- ggplot(edna_data, aes(x = reorder(paper_label, n), y = n, fill = combined_type)) +
+  geom_col() +
+  geom_text(aes(label = n), hjust = -0.2, size = 3, fontface = "bold") +
+  coord_flip() +
+  scale_fill_viridis_d(option = "viridis", end = 0.9) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.title.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    # REDUCE MARGINS
+    plot.margin = margin(t = -10, r = 0, b = 5, l = 0, unit = "pt")
+  ) +
+  labs(title = "Sample Size Comparison", fill = "Substrate Type", y = "Number of Samples (n)")
+
+# --- 4. COMBINE WITH RIGHT-HAND LEGEND ---
+combined_figure <- (plot_a / plot_b) + 
+  # Increased the map ratio (3 to 1) to make it much bigger than the bar chart
+  plot_layout(heights = c(3, 1), guides = "collect") + 
+  plot_annotation(tag_levels = 'A') & 
+  theme(
+    # ONE LEGEND ON THE RIGHT
+    legend.position = "right",
+    legend.title = element_text(size = 12, face = "bold"), 
+    legend.text = element_text(size = 10),
+    legend.key.size = unit(0.8, "cm")
+  )
+
+# --- 5. SAVE ---
+# Note: I reduced height to 10. Tall heights create that white space above/below maps.
+ggsave(here("writtens/figures", "edna_combined_tight.jpg"), 
+       combined_figure, width = 14, height = 10, dpi = 300)
+
+
+
+########
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(ggrepel)
+library(here)
+library(patchwork)
+
+# --- 1. DATA PREP ---
+edna_data <- read_csv(here("writtens/data", "edna_3.csv")) %>%
+  janitor::clean_names() %>%
+  mutate(paper_label = paste0(author, " (", year, ")"),
+         full_label = paste0(location, "\n(", author, ", ", year, ")")) %>%
+  unite("combined_type", e_dna_type_1:e_dna_type_3, sep = " & ", na.rm = TRUE)
+
+edna_sf <- st_as_sf(edna_data, coords = c("long", "lat"), crs = 4326)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# --- 2. PLOT A: THE MAP ---
+plot_a <- ggplot() +
+  geom_sf(data = world, fill = "antiquewhite1", color = "gray80", size = 0.2) +
+  geom_sf(data = edna_sf, aes(color = combined_type), size = 2) +
+  # Use the exact same name for both scales to help R merge them
+  scale_color_viridis_d(option = "viridis", end = 0.9, name = "Substrate Type") +
+  geom_label_repel(
+    data = edna_sf,
+    aes(label = full_label, geometry = geometry),
+    stat = "sf_coordinates",
+    size = 2.5,
+    fontface = "italic",
+    box.padding = 1.5,      # Pushes labels much further away
+    point.padding = 0.5,
+    force = 10,             # Increased force to push overlapping labels apart
+    max.overlaps = Inf,
+    segment.color = 'grey50',
+    min.segment.length = 0
+  ) +
+  coord_sf(crs = "+proj=robin", expand = FALSE) + 
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid.major = element_line(color = "gray90", size = 0.1),
+    plot.margin = margin(b = -20) # Pulls plot B up closer
+  ) +
+  labs(title = "Metagenomic eDNA Study Locations")
+
+# --- 3. PLOT B: THE BAR CHART ---
+plot_b <- ggplot(edna_data, aes(x = reorder(paper_label, n), y = n, fill = combined_type)) +
+  geom_col() +
+  geom_text(aes(label = n), hjust = -0.2, size = 3, fontface = "bold") +
+  coord_flip() +
+  # Match the name here exactly to the map scale
+  scale_fill_viridis_d(option = "viridis", end = 0.9, name = "Substrate Type") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.title.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    plot.margin = margin(t = -20) # Pulls plot A down closer
+  ) +
+  labs(title = "Sample Size Comparison", y = "Number of Samples (n)")
+
+# --- 4. THE MASTER COMBINATION ---
+combined_figure <- (plot_a / plot_b) + 
+  plot_layout(heights = c(3.5, 1), guides = "collect") + 
+  plot_annotation(tag_levels = 'A') & 
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 12, face = "bold"),
+    # This guides() call forces the color and fill to share one legend entry
+    legend.justification = "top"
+  )
+
+# --- 5. SAVE ---
+# Making the width much wider (16) gives the labels more room to spread horizontally
+ggsave(here("writtens/figures", "edna_final_tight_one_legend.jpg"), 
+       combined_figure, width = 16, height = 10, dpi = 300)
+
+
+######
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(ggrepel)
+library(here)
+library(patchwork)
+
+# --- 1. DATA PREP ---
+edna_data <- read_csv(here("writtens/data", "edna_3.csv")) %>%
+  janitor::clean_names() %>%
+  mutate(paper_label = paste0(author, " (", year, ")"),
+         full_label = paste0(location, "\n(", author, ", ", year, ")")) %>%
+  unite("combined_type", e_dna_type_1:e_dna_type_3, sep = " & ", na.rm = TRUE)
+
+edna_sf <- st_as_sf(edna_data, coords = c("long", "lat"), crs = 4326)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# --- 2. PLOT A: THE MAP ---
+plot_a <- ggplot() +
+  geom_sf(data = world, fill = "antiquewhite1", color = "gray80", size = 0.2) +
+  # show.legend = FALSE is the key fix here!
+  geom_sf(data = edna_sf, aes(color = combined_type), size = 2, show.legend = FALSE) +
+  scale_color_viridis_d(option = "viridis", end = 0.9) +
+  geom_label_repel(
+    data = edna_sf,
+    aes(label = full_label, geometry = geometry),
+    stat = "sf_coordinates",
+    size = 2.5,
+    fontface = "italic",
+    box.padding = 1.8,      # Even more social distancing for labels
+    point.padding = 0.5,
+    force = 20,             # Doubled the force to push them apart
+    max.overlaps = Inf,
+    segment.color = 'grey50',
+    min.segment.length = 0,
+    seed = 42               # Setting a seed keeps the labels in the same spot every time you run it
+  ) +
+  coord_sf(crs = "+proj=robin", expand = FALSE) + 
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid.major = element_line(color = "gray90", size = 0.1),
+    plot.margin = margin(b = -30) # Aggressively pull Plot B up
+  ) +
+  labs(title = "Metagenomic eDNA Study Locations")
+
+# --- 3. PLOT B: THE BAR CHART ---
+plot_b <- ggplot(edna_data, aes(x = reorder(paper_label, n), y = n, fill = combined_type)) +
+  geom_col() +
+  geom_text(aes(label = n), hjust = -0.2, size = 3, fontface = "bold") +
+  coord_flip() +
+  # This legend will now represent both figures
+  scale_fill_viridis_d(option = "viridis", end = 0.9, name = "Substrate Type") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.title.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    plot.margin = margin(t = -30) # Aggressively pull Plot A down
+  ) +
+  labs(title = "Sample Size Comparison", y = "Number of Samples (n)")
+
+# --- 4. THE MASTER COMBINATION ---
+combined_figure <- (plot_a / plot_b) + 
+  plot_layout(heights = c(3.5, 1)) + 
+  plot_annotation(tag_levels = 'A') & 
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10)
+  )
+
+# --- 5. SAVE ---
+# Keeping it wide (16) to give those labels room to breathe
+ggsave(here("writtens/figures", "edna_final_fixed_legend.jpg"), 
+       combined_figure, width = 16, height = 10, dpi = 300)
